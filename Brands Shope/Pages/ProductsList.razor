@@ -1,0 +1,101 @@
+﻿@page "/products/{BrandId:int}"
+@inject IProductService ProductService
+@inject CartService CartService
+
+<h2 class="text-center mb-4" style="color: #007bff;">Products</h2>
+
+@if (products == null)
+{
+    <p class="text-center">Loading...</p>
+}
+else if (!products.Any())
+{
+    <p class="text-center text-muted">No products available for this brand.</p>
+}
+else
+{
+    <div class="container">
+        <div class="row">
+            @foreach (var product in products)
+            {
+                <div class="col-md-4 mb-4">
+                    <div class="card shadow-sm">
+                        <img src="@product.ImageUrl" class="card-img-top" style="height: 150px; object-fit: contain;" alt="@product.Name" />
+                        <div class="card-body text-center">
+                            <h5 class="card-title">@product.Name</h5>
+                            <p>@product.Description</p>
+                            <p class="fw-bold text-primary">$@product.Price</p>
+                            <button class="btn btn-outline-primary me-2" @onclick="() => ShowDetails(product.Id)">Show Details</button>
+                            <button class="btn btn-success" @onclick="() => AddToCart(product)">Add to Cart</button>
+                        </div>
+                    </div>
+                </div>
+            }
+        </div>
+    </div>
+}
+
+@if (showModal)
+{
+    <div class="modal fade show d-block" tabindex="-1" style="background: rgba(0,0,0,0.5);" @onclick="CloseModal">
+        <div class="modal-dialog modal-dialog-centered" @onclick:stopPropagation>
+            <div class="modal-content">
+                @if (isLoading)
+                {
+                    <div class="modal-body text-center">
+                        <div class="spinner-border text-primary"></div>
+                        <p>Loading...</p>
+                    </div>
+                }
+                else if (selectedProduct != null)
+                {
+                    <div class="modal-header">
+                        <h5 class="modal-title">@selectedProduct.Name</h5>
+                        <button type="button" class="btn-close" @onclick="CloseModal"></button>
+                    </div>
+                    <div class="modal-body text-center">
+                        <img src="@selectedProduct.ImageUrl" class="img-fluid mb-3" alt="@selectedProduct.Name" style="max-width: 200px;" />
+                        <p><strong>Brand:</strong> @selectedProduct.BrandName</p>
+                        <p><strong>Price:</strong> $@selectedProduct.Price</p>
+                        <p><strong>Description:</strong> @selectedProduct.Description</p>
+                    </div>
+                }
+            </div>
+        </div>
+    </div>
+
+}
+
+@code {
+    [Parameter]
+    public int BrandId { get; set; }
+
+    private List<Product>? products;
+    private Product? selectedProduct;
+    private bool showModal = false;
+    private bool isLoading = false;
+
+    protected override async Task OnParametersSetAsync()
+    {
+        products = await ProductService.GetProductsByBrand(BrandId);
+    }
+
+    private void AddToCart(Product product)
+    {
+        CartService.AddToCart(product);
+    }
+
+    private async Task ShowDetails(int productId)
+    {
+        showModal = true;
+        isLoading = true;
+        selectedProduct = await ProductService.GetProductById(productId);
+        isLoading = false;
+    }
+
+    private void CloseModal()
+    {
+        showModal = false;
+        selectedProduct = null;
+    }
+}

@@ -1,0 +1,45 @@
+﻿@page "/brands"
+@inject IProductService ProductService
+
+<h2 class="text-center mb-4" style="color: #007bff;">Top Brands</h2>
+
+@if (brands == null)
+{
+    <p class="text-center">Loading...</p>
+}
+else
+{
+    <div class="container">
+        <div class="row">
+            @foreach (var brand in brands)
+            {
+                <div class="col-lg-3 col-md-4 col-sm-6 mb-4">
+                    <div class="card shadow-sm" style="cursor: pointer;" @onclick="@(() => NavigateToProducts(brand.Id))">
+                        <img src="images/brands/@(brand.Id).png" class="card-img-top p-3" style="height: 100px; object-fit: contain;" alt="@brand.Name" />
+                        <div class="card-body text-center">
+                            <h5 class="card-title">@brand.Name</h5>
+                            <p class="text-muted" style="font-size: 0.9rem;">@brand.Description</p>
+                        </div>
+                    </div>
+                </div>
+            }
+        </div>
+    </div>
+}
+
+@code {
+    private List<Brand>? brands;
+
+    [Inject]
+    private NavigationManager Nav { get; set; } = default!;
+
+    protected override async Task OnInitializedAsync()
+    {
+        brands = await ProductService.GetBrands();
+    }
+
+    private void NavigateToProducts(int brandId)
+    {
+        Nav.NavigateTo($"/products/{brandId}");
+    }
+}

@@ -1,0 +1,86 @@
+﻿@page "/orders"
+@inject OrderService OrderService
+
+<h3 class="text-center mt-3 text-primary">Orders</h3>
+
+<div class="container mt-4 mb-3">
+    <div class="row mb-3">
+        <div class="col-md-4">
+            <label>Start Date:</label>
+            <InputDate @bind-Value="startDate" class="form-control" />
+        </div>
+        <div class="col-md-4">
+            <label>End Date:</label>
+            <InputDate @bind-Value="endDate" class="form-control" />
+        </div>
+        <div class="col-md-4 d-flex align-items-end">
+            <button class="btn btn-primary me-2" @onclick="ApplyFilter">Apply Filter</button>
+            <button class="btn btn-secondary" @onclick="ResetFilter">Reset Filter</button>
+        </div>
+    </div>
+
+    @if (orders == null || !orders.Any())
+    {
+        <p class="text-muted">No orders found for the selected date range.</p>
+    }
+    else
+    {
+        <table class="table table-bordered">
+            <thead class="table-light">
+                <tr>
+                    <th>Order ID</th>
+                    <th>Customer</th>
+                    <th>Order Date</th>
+                    <th>Total Amount ($)</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var order in orders)
+                {
+                    <tr>
+                        <td>@order.Id</td>
+                        <td>@order.CustomerName</td>
+                        <td>@order.OrderDate.ToString("dd/MM/yyyy")</td>
+                        <td>@order.TotalAmount</td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    }
+</div>
+
+@code {
+    private DateTime? startDate = DateTime.Today;
+    private DateTime? endDate = DateTime.Today;
+    private List<Order>? orders;
+
+    protected override async Task OnInitializedAsync()
+    {
+        await LoadOrders();
+    }
+
+    private async Task LoadOrders()
+    {
+        orders = await OrderService.GetOrders(startDate, endDate);
+    }
+
+    private async Task ApplyFilter()
+    {
+        if (startDate > endDate)
+        {
+            await JS.InvokeVoidAsync("alert", "Start date must be before end date.");
+            return;
+        }
+
+        await LoadOrders();
+    }
+
+    private async Task ResetFilter()
+    {
+        startDate = DateTime.Today;
+        endDate = DateTime.Today;
+        await LoadOrders();
+    }
+
+    [Inject] public IJSRuntime JS { get; set; } = default!;
+}
