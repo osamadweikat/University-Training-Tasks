@@ -1,8 +1,16 @@
 ﻿@page "/products/{BrandId:int}"
+@using Brands_Shope.Services
 @inject IProductService ProductService
 @inject CartService CartService
 
 <h2 class="text-center mb-4" style="color: #007bff;">Products</h2>
+
+@if (!string.IsNullOrEmpty(successMessage))
+{
+    <div class="alert alert-success text-center" role="alert">
+        @successMessage
+    </div>
+}
 
 @if (products == null)
 {
@@ -24,9 +32,9 @@ else
                         <div class="card-body text-center">
                             <h5 class="card-title">@product.Name</h5>
                             <p>@product.Description</p>
-                            <p class="fw-bold text-primary">$@product.Price</p>
+                            <p class="fw-bold text-primary">$@product.Price.ToString("0.00")</p>
                             <button class="btn btn-outline-primary me-2" @onclick="() => ShowDetails(product.Id)">Show Details</button>
-                            <button class="btn btn-success" @onclick="() => AddToCart(product)">Add to Cart</button>
+                            <button class="btn btn-success" @onclick="() => AddToCart(product.Id)">Add to Cart</button>
                         </div>
                     </div>
                 </div>
@@ -56,14 +64,13 @@ else
                     <div class="modal-body text-center">
                         <img src="@selectedProduct.ImageUrl" class="img-fluid mb-3" alt="@selectedProduct.Name" style="max-width: 200px;" />
                         <p><strong>Brand:</strong> @selectedProduct.BrandName</p>
-                        <p><strong>Price:</strong> $@selectedProduct.Price</p>
+                        <p><strong>Price:</strong> $@selectedProduct.Price.ToString("0.00")</p>
                         <p><strong>Description:</strong> @selectedProduct.Description</p>
                     </div>
                 }
             </div>
         </div>
     </div>
-
 }
 
 @code {
@@ -74,15 +81,21 @@ else
     private Product? selectedProduct;
     private bool showModal = false;
     private bool isLoading = false;
+    private string? successMessage;
 
     protected override async Task OnParametersSetAsync()
     {
         products = await ProductService.GetProductsByBrand(BrandId);
     }
 
-    private void AddToCart(Product product)
+    private async Task AddToCart(int productId)
     {
-        CartService.AddToCart(product);
+        await CartService.AddToCart(productId);
+        successMessage = "✔️ Product added to cart successfully!";
+
+        await Task.Delay(3000);
+        successMessage = null;
+        StateHasChanged();
     }
 
     private async Task ShowDetails(int productId)
