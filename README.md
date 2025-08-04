@@ -53,7 +53,7 @@ The project demonstrates real-world concepts such as database integration, repos
 ## 🔧 Setup Instructions
 
 1. **Clone the repo**
-   git clone https://github.com/yourusername/UniversityTrainingTasks.git
+   git clone https://github.com/yourusername/University-Training-Tasks.git
 
 2. Update appsettings.json with your MySQL connection string.
 
