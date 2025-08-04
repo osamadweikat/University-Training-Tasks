@@ -5,7 +5,7 @@
 namespace BrandsShops.Api.Migrations
 {
     /// <inheritdoc />
-    public partial class AddCartItemTable : Migration
+    public partial class UpdateStudentValidation : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)

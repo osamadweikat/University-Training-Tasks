@@ -1,9 +1,10 @@
 using BrandsShops.Api.Data;
+using BrandsShops.Api.Interfaces;
+using BrandsShops.Api.Repositories;
 using BrandsShops.Api.Services;
 using Microsoft.EntityFrameworkCore;
 
 var builder = WebApplication.CreateBuilder(args);
-
 
 builder.Services.AddDbContext<ApplicationDbContext>(options =>
     options.UseMySql(
@@ -16,6 +17,9 @@ builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 builder.Services.AddScoped<CartService>();
 
+builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
+builder.Services.AddScoped<IStudentRepository, StudentRepository>();
+builder.Services.AddScoped(typeof(IRepository<>), typeof(Repository<>));
 
 builder.Services.AddCors(options =>
 {
@@ -39,7 +43,6 @@ if (app.Environment.IsDevelopment())
 app.UseCors("AllowBlazorApp");
 
 app.UseHttpsRedirection();
-
 app.UseAuthorization();
 
 app.MapControllers();

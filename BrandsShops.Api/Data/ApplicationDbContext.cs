@@ -16,6 +16,7 @@ namespace BrandsShops.Api.Data
         public DbSet<ProductModel> Products => Set<ProductModel>();
         public DbSet<BrandModel> Brands => Set<BrandModel>();
         public DbSet<CartItem> CartItems => Set<CartItem>();
+        public DbSet<Student> Students => Set<Student>(); 
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -23,7 +24,7 @@ namespace BrandsShops.Api.Data
 
             modelBuilder.Entity<CartItem>()
                 .HasOne(c => c.Product)
-                .WithMany() 
+                .WithMany()
                 .HasForeignKey(c => c.ProductId)
                 .OnDelete(DeleteBehavior.Cascade);
         }
